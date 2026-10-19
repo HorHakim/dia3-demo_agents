@@ -11,7 +11,8 @@ class Conversation_Manager:
         self.groq_client = Groq(api_key=os.environ["GROQ_KEY"])
         self.conversation_history = []
 
-    def read_file(self, file_path):
+    @staticmethod #self n'est pas appélé ici donc la méthode est statique
+    def read_file(file_path):
         with open(file_path, "r") as file:
             return file.read()
 
