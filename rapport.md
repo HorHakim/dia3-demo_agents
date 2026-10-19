@@ -2,16 +2,32 @@
 
 ## Sommaire
 
+**Mise en route**
+
 - [1. La branche locale et le remote](#branche-locale)
-- [2. Installer requirements.txt](#installer-requirements)
-- [3. Enregistrer une réponse ne donne pas de mémoire au modèle](#enregistrer-reponse)
+- [2. Installer `requirements.txt`](#installer-requirements)
+
+**Mémoire de la conversation**
+
+- [3. Écrire dans un fichier ne donne pas de mémoire au modèle](#enregistrer-reponse)
   - [Corriger l'appel](#corriger-appel)
   - [Relire le fichier avant chaque question](#relire-fichier)
-- [4. À quoi sert *history](#etoile-history)
-- [5. Historique passé à ask_llm](#historique-ask-llm)
-- [6. Pourquoi agent = Conversation_Manager()](#agent-conversation-manager)
-- [7. st.session_state.messages.append(...)](#session-state-append)
-- [8. À quoi correspond st](#alias-st)
+- [4. À quoi sert `*history`](#etoile-history)
+- [5. Passer l'historique à `ask_llm`](#historique-ask-llm)
+- [7. Ajouter un tour avec `append`](#session-state-append)
+- [11. `*history` en détail](#history-detail)
+
+**La classe et l'interface**
+
+- [6. Pourquoi `agent = Conversation_Manager()`](#agent-conversation-manager)
+- [8. À quoi correspond `st`](#alias-st)
+
+**Détails du code**
+
+- [9. Pourquoi `choices[0]`](#choices-zero)
+- [10. Pourquoi `import os`](#import-os)
+- [12. À quoi sert `print("\n")`](#print-newline)
+- [13. Le `"r"` de `open`](#open-mode-r)
 
 <a id="branche-locale"></a>
 
@@ -147,3 +163,49 @@ La ligne d'après fait la même chose avec la réponse, en `"assistant"`. Au mes
 `st` est le raccourci du module Streamlit. La première ligne de `app.py` fait `import streamlit as st`, donc `st.session_state` signifie `streamlit.session_state`.
 
 Le nom `st` n'a rien de spécial : c'est l'alias choisi à l'import. `st.chat_input`, `st.title` et `st.session_state` sont des fonctions et des objets fournis par Streamlit.
+
+<a id="choices-zero"></a>
+
+## 9. Pourquoi `choices[0]`
+
+`choices` est une liste. L'API peut renvoyer plusieurs réponses possibles pour la même question, et `[0]` prend la première.
+
+Par défaut, Groq n'en produit qu'une seule, donc la liste ne contient qu'un élément, à l'index `0`. `.message.content` est le texte de cette réponse. Sans `[0]`, tu aurais la liste entière, pas le message.
+
+<a id="import-os"></a>
+
+## 10. Pourquoi `import os`
+
+`import os` sert à lire la clé API dans les variables d'environnement. Dans `llm_agent.py`, la seule utilisation est `os.environ["GROQ_KEY"]`.
+
+`load_dotenv()` charge le fichier `.env` et y place `GROQ_KEY`. `os.environ` est le dictionnaire de Python qui contient ces variables. Sans `import os`, cette ligne ne peut pas s'exécuter : `os` n'existerait pas.
+
+<a id="history-detail"></a>
+
+## 11. `*history` en détail
+
+`*history` déplie la liste des tours précédents et les place, un par un, dans `messages`, entre le personnage et la nouvelle question.
+
+`history` est une liste de dictionnaires `role` / `content`. L'étoile enlève les crochets. La liste envoyée à Groq ressemble alors à ceci : le message `system` avec `context.txt`, puis chaque tour déjà eu, puis la question en cours.
+
+La virgule après `*history` sépare cet élément du message utilisateur, comme la virgule après le dictionnaire `system`.
+
+Sans l'étoile, Python mettrait la liste entière comme un seul élément. L'API attend une suite de dictionnaires, pas une liste imbriquée. Si `history` est vide, `*history` n'ajoute rien.
+
+<a id="print-newline"></a>
+
+## 12. À quoi sert `print("\n")`
+
+`print("\n")` affiche une ligne vide entre la question et la réponse, dans le bloc qui tourne quand tu lances `llm_agent.py` directement.
+
+`\n` est le caractère « retour à la ligne ». `print` en ajoute un deuxième à la fin, donc le texte de la réponse commence une ligne plus bas, séparé de ce que tu viens de taper. Ça ne change rien pour le modèle, ni pour Streamlit : `app.py` n'appelle pas cette ligne.
+
+<a id="open-mode-r"></a>
+
+## 13. Le `"r"` de `open`
+
+`"r"` veut dire read : ouvrir le fichier seulement pour le lire. `open` peut alors lire le texte, pas le modifier ni l'effacer.
+
+`with` ferme le fichier tout seul à la fin du bloc, même en cas d'erreur. `as file` donne le nom `file` à ce fichier ouvert, et `file.read()` en renvoie tout le contenu sous forme d'une chaîne.
+
+Les autres modes courants : `"w"` écrit en remplaçant ce qui était déjà dans le fichier, `"a"` ajoute à la fin. `"r"` est aussi le mode par défaut d'`open` quand on n'en donne pas.
