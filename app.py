@@ -24,7 +24,7 @@ if user_input :
 	with st.chat_message("user"):
 		st.markdown(user_input)
 
-	with st.chat_message("system"):
+	with st.chat_message("assistant"):
 		st.markdown(response)
 
 
