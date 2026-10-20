@@ -27,12 +27,13 @@ user_input = st.chat_input(
 	)
 
 if user_input :
-	response = agent.ask_llm(user_input)
-	
 	with st.chat_message("user"):
 		st.markdown(user_input)
 
 	with st.chat_message("assistant"):
+		with st.spinner("Barbe-Quasar réfléchit..."):
+			response = agent.ask_llm(user_input)
+
 		st.markdown(response)
 
 
