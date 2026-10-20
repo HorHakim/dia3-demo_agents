@@ -44,6 +44,8 @@ class ConversationAgent:
 
         self.update_conversation_history(role="assistant", content=response)
 
+        return response
+
 
 
 
