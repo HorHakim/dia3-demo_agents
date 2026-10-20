@@ -16,6 +16,8 @@
 - [5. Passer l'historique à `ask_llm`](#historique-ask-llm)
 - [7. Ajouter un tour avec `append`](#session-state-append)
 - [11. `*history` en détail](#history-detail)
+- [14. Pourquoi `history=None`](#history-none)
+- [15. Si l'historique dépasse la fenêtre de contexte](#fenetre-contexte)
 
 **La classe et l'interface**
 
@@ -209,3 +211,17 @@ Sans l'étoile, Python mettrait la liste entière comme un seul élément. L'API
 `with` ferme le fichier tout seul à la fin du bloc, même en cas d'erreur. `as file` donne le nom `file` à ce fichier ouvert, et `file.read()` en renvoie tout le contenu sous forme d'une chaîne.
 
 Les autres modes courants : `"w"` écrit en remplaçant ce qui était déjà dans le fichier, `"a"` ajoute à la fin. `"r"` est aussi le mode par défaut d'`open` quand on n'en donne pas.
+
+<a id="history-none"></a>
+
+## 14. Pourquoi `history=None`
+
+`history=None` rend l'argument facultatif. On peut appeler `ask_llm(question)` sans liste, comme dans le bloc `if __name__` ou au premier message. Avec seulement `history`, chaque appel devrait en fournir une, même vide.
+
+La valeur par défaut est `None` et pas `[]`, parce qu'une liste écrite dans la signature est créée une seule fois et partagée entre tous les appels. `None` veut dire « rien n'a été passé ». Le `if` crée alors une liste vide neuve, uniquement pour cet appel.
+
+<a id="fenetre-contexte"></a>
+
+## 15. Si l'historique dépasse la fenêtre de contexte
+
+Si le total dépasse la fenêtre du modèle, Groq refuse l'appel. La réponse n'arrive pas. Le message `system` n'est pas dans `history` : il est relu dans `context.txt` à chaque fois, donc il n'est pas le premier élément que l'on pourrait couper.

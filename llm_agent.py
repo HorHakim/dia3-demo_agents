@@ -11,13 +11,12 @@ class Conversation_Manager:
         self.groq_client = Groq(api_key=os.environ["GROQ_KEY"])
         self.conversation_history = []
 
-    @staticmethod #self n'est pas appélé ici donc la méthode est statique
+    @staticmethod 
     def read_file(file_path):
         with open(file_path, "r") as file:
             return file.read()
 
     def ask_llm(self, question, history=None):
-        # Liste vide par défaut : on n'en crée pas une partagée entre les appels.
         if history is None:
             history = []
 
