@@ -76,6 +76,7 @@ class ConversationAgent:
 
 if __name__ == "__main__":
     question = input("Pose ta question :\n")
-    response = ask_llm(question)
+    agent = ConversationAgent()
+    response = agent.ask_llm(question)
     print("\n")
     print(response)
