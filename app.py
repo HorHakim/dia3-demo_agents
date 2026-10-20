@@ -12,6 +12,14 @@ if "agent" not in st.session_state:
 agent = st.session_state.agent
 
 
+for message in agent.conversation_history:
+	if message["role"] == "system":
+		continue
+
+	with st.chat_message(message["role"]):
+		st.markdown(message["content"])
+
+
 user_input = st.chat_input(
 	"Que veux tu moussaillon ?",
 	accept_file=False,
