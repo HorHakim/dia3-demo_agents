@@ -1,6 +1,6 @@
 import streamlit as st 
 from llm_agent import ConversationAgent
-
+import base64
 
 class UserInterface:
 	def __init__(self):
@@ -17,10 +17,30 @@ class UserInterface:
 		return st.session_state.conversation_agent_object
 
 
+
+	@staticmethod
+	def display_image(base64_image):
+		image_bytes = base64.b64decode(base64_image.split(",", 1)[1])
+		st.image(image_bytes, width=150)
+
+
+	@staticmethod
+	def display_message(message):
+		with st.chat_message(message["role"]):
+			if type(message["content"]) == str :
+				st.markdown(message["content"])
+			
+			elif type(message["content"]) == list :
+				for content in message["content"]:
+					if content["type"] == "text":
+						st.markdown(content["text"])
+					elif content["type"] == "image_url":
+						UserInterface.display_image(content["image_url"]["url"])
+
+
 	def show_discussion_history(self):
 		for message in self.conversation_agent_object.get_conversation_history():
-			with st.chat_message(message["role"]):
-				st.markdown(message["content"])
+			self.display_message(message)
 
 
 	def run(self):

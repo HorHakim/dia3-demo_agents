@@ -31,13 +31,16 @@ class ConversationAgent:
         return self.conversation_history[1: ]
 
 
-    def update_conversation_history(self, role, content, image=None):
-        if content and image:
+    def update_conversation_history(self, role, text_interaction, image=None):
+        if text_interaction and image:
             self.conversation_history.append(
                 {
                 "role": role,
                 "content": [
-                    {"type": "text", "text": content},
+                    {
+                        "type": "text",
+                        "text": text_interaction
+                    },
                     {
                         "type": "image_url",
                         "image_url": {
@@ -47,14 +50,16 @@ class ConversationAgent:
                 ],
                 }
             )
-        elif content and not image :
+        
+        elif text_interaction and not image :
             self.conversation_history.append(
                 {
                 "role": role,
-                "content": content,
+                "content": text_interaction,
                 }
             )
-        elif not content and image :
+        
+        elif not text_interaction and image :
             self.conversation_history.append(
                 {
                 "role": role,
@@ -68,8 +73,6 @@ class ConversationAgent:
                 ],
                 }
             )
-
-
 
 
 
@@ -86,9 +89,11 @@ class ConversationAgent:
         return transcription.text
 
 
+
+
     def ask_llm(self, text_interaction, image):
 
-        self.update_conversation_history(role="user", content=text_interaction, image=image)
+        self.update_conversation_history(role="user", text_interaction=text_interaction, image=image)
 
         response = self.groq_client.chat.completions.create(
             messages=self.conversation_history,
@@ -97,7 +102,7 @@ class ConversationAgent:
         ).choices[0].message.content
 
 
-        self.update_conversation_history(role="assistant", content=response)
+        self.update_conversation_history(role="assistant", text_interaction=response)
 
 
 
