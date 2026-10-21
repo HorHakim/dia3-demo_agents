@@ -27,15 +27,11 @@ class UserInterface:
 	@staticmethod
 	def display_message(message):
 		with st.chat_message(message["role"]):
-			if type(message["content"]) == str :
-				st.markdown(message["content"])
-			
-			elif type(message["content"]) == list :
-				for content in message["content"]:
-					if content["type"] == "text":
-						st.markdown(content["text"])
-					elif content["type"] == "image_url":
-						UserInterface.display_image(content["image_url"]["url"])
+			for content in message["content"]:
+				if content["type"] == "text":
+					st.markdown(content["text"])
+				elif content["type"] == "image_url":
+					UserInterface.display_image(content["image_url"]["url"])
 
 
 	def show_discussion_history(self):

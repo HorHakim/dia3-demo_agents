@@ -31,48 +31,32 @@ class ConversationAgent:
         return self.conversation_history[1: ]
 
 
+    @staticmethod
+    def build_content(text_interaction, image=None):
+        content = []
+        if text_interaction:
+            content.append({
+                            "type": "text",
+                            "text": text_interaction
+                        })
+        if image :
+            content.append({
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{ConversationAgent.encode_image(image)}",
+                            },
+                        })
+
+        return content
+
+
     def update_conversation_history(self, role, text_interaction, image=None):
-        if text_interaction and image:
-            self.conversation_history.append(
-                {
-                "role": role,
-                "content": [
-                    {
-                        "type": "text",
-                        "text": text_interaction
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{self.encode_image(image)}",
-                        },
-                    },
-                ],
-                }
-            )
-        
-        elif text_interaction and not image :
-            self.conversation_history.append(
-                {
-                "role": role,
-                "content": text_interaction,
-                }
-            )
-        
-        elif not text_interaction and image :
-            self.conversation_history.append(
-                {
-                "role": role,
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{self.encode_image(image)}",
-                        },
-                    },
-                ],
-                }
-            )
+        self.conversation_history.append(
+            {
+            "role": role,
+            "content": self.build_content(text_interaction, image),
+            }
+        )
 
 
 
